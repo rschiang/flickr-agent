@@ -19,18 +19,16 @@ def load_settings():
 def guess_time(path):
     with open(path, 'rb') as f:
         dates = []
-
-        tags = exifread.process_file(f)     # EXIFRead won't throw errors
+        tags = exifread.process_file(f, details=False, stop_tag='EXIF DateTimeOriginal')
         for tag in ('EXIF DateTimeOriginal', 'EXIF DateTimeDigitized', 'Image DateTime'):
             if tag in tags:
                 try:
-                    dates.append(datetime.strptime(tags[tag], '%Y:%m:%d %H:%M:%S'))
+                    dates.append(datetime.strptime(str(tags[tag]), '%Y:%m:%d %H:%M:%S'))
                 except ValueError: pass
-
-        if not dates:
-            return min(os.path.getctime(path), os.path.getmtime(path))
-        else:
+        if dates:
             return min(dates)
+        else:
+            return datetime.fromtimestamp(min(os.path.getctime(path), os.path.getmtime(path)))
 
 def upload():
     upload_dir = settings.get('upload_dir', 'upload')
