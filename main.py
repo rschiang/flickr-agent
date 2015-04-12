@@ -33,17 +33,17 @@ def guess_time(path):
 def upload():
     upload_dir = settings.get('upload_dir', 'upload')
     success_dir = settings.get('success_dir', 'success')
-    files = sorted(os.listdir(upload_dir), key=guess_time)
-    for file in files:
+    files = [os.path.join(upload_dir, file) for file in os.listdir(upload_dir)]
+    for file in sorted(files, key=guess_time):
         try:
-            path = os.path.join(upload_dir, file)
             content_type = 2 if file.lower().endswith('.png') else 1
-            print(flickr.upload(photo_file=path, content_type=content_type))
+            print(flickr.upload(photo_file=file, content_type=content_type))
         except flickr.FlickrError as e:
             print(file, e)
             break
         else:
-            os.rename(path, os.path.join(success_dir, file))
+            filename = os.path.basename(file)
+            os.rename(file, os.path.join(success_dir, filename))
 
 if __name__ == "__main__":
     settings = load_settings()
