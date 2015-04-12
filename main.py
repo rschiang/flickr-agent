@@ -1,3 +1,4 @@
+from codecs import open
 from datetime import datetime
 import exifread
 import flickr_api as flickr
@@ -30,11 +31,28 @@ def guess_time(path):
         else:
             return datetime.fromtimestamp(min(os.path.getctime(path), os.path.getmtime(path)))
 
-def upload():
+def generate_list():
     upload_dir = settings.get('upload_dir', 'upload')
+    files = os.listdir(upload_dir)
+    paths = [os.path.join(upload_dir, file) for file in files]
+    return sorted(paths, key=guess_time)
+
+def get_list():
+    try:
+        with open('sorted.txt', 'r', encoding='utf-8') as f:
+            return f.readlines()
+    except IOError:
+        print('Generating list...')
+        paths = generate_list()
+        with open('sorted.txt', 'w+', encoding='utf-8') as f:
+            for path in paths:
+                f.write(path)
+                f.write('\n')
+        return paths
+
+def upload():
     success_dir = settings.get('success_dir', 'success')
-    files = [os.path.join(upload_dir, file) for file in os.listdir(upload_dir)]
-    for file in sorted(files, key=guess_time):
+    for file in get_list():
         try:
             content_type = 2 if file.lower().endswith('.png') else 1
             print(flickr.upload(photo_file=file, content_type=content_type))
