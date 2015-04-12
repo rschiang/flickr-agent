@@ -1,0 +1,3 @@
+flickr-api==0.5
+oauth==1.0.1
+wsgiref==0.1.2
