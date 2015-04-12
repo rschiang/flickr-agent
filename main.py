@@ -40,7 +40,7 @@ def generate_list():
 def get_list():
     try:
         with open('sorted.txt', 'r', encoding='utf-8') as f:
-            yield f.readline().strip()
+            paths = f.readlines()
     except IOError:
         print('Generating list...')
         paths = generate_list()
@@ -48,8 +48,8 @@ def get_list():
             for path in paths:
                 f.write(path)
                 f.write('\n')
-        for path in paths:
-            yield path
+    for path in paths:
+        yield path.strip()
 
 def upload():
     success_dir = settings.get('success_dir', 'success')
@@ -60,6 +60,9 @@ def upload():
         except flickr.FlickrError as e:
             print(file, e)
             break
+        except IOError:
+            print(file, 'not found')
+            continue
         else:
             filename = os.path.basename(file)
             os.rename(file, os.path.join(success_dir, filename))
