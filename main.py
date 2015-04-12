@@ -34,7 +34,7 @@ def guess_time(path):
 def generate_list():
     upload_dir = settings.get('upload_dir', 'upload')
     files = os.listdir(upload_dir)
-    paths = [os.path.join(upload_dir, file) for file in files]
+    paths = [os.path.join(upload_dir, file) for file in files if not file.startswith('.')]
     return sorted(paths, key=guess_time)
 
 def get_list():
