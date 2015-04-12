@@ -40,7 +40,7 @@ def generate_list():
 def get_list():
     try:
         with open('sorted.txt', 'r', encoding='utf-8') as f:
-            return f.readlines()
+            yield f.readline().strip()
     except IOError:
         print('Generating list...')
         paths = generate_list()
@@ -48,7 +48,8 @@ def get_list():
             for path in paths:
                 f.write(path)
                 f.write('\n')
-        return paths
+        for path in paths:
+            yield path
 
 def upload():
     success_dir = settings.get('success_dir', 'success')
